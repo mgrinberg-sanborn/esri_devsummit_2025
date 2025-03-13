@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>Custom Basemap | Sample | ArcGIS Maps SDK for JavaScript 4.32</title>
+
+  <style>
+    html,
+    body,
+    #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+
+    #infoBox {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 8px;
+      font-size: 14px;
+      font-family: Arial, sans-serif;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+
+  <link href="https://js.arcgis.com/4.32/esri/themes/light/main.css" rel="stylesheet" />
+  <script src="https://js.arcgis.com/4.32/"></script>
+
+  <script>
+    require([
+      "esri/layers/VectorTileLayer",
+      "esri/Map",
+      "esri/Basemap",
+      "esri/widgets/BasemapToggle",
+      "esri/views/SceneView",
+      "esri/layers/SceneLayer",
+      "esri/layers/IntegratedMeshLayer",
+      "esri/layers/FeatureLayer",
+      "esri/symbols/PointSymbol3D"
+    ], (VectorTileLayer, Map, Basemap, BasemapToggle, SceneView, SceneLayer, IntegratedMeshLayer, FeatureLayer, PointSymbol3D) => {
+
+      const map = new Map({
+        basemap: "satellite",
+        ground: "world-elevation"
+      });
+
+      const initCamera = {
+        heading: 341.78,
+        tilt: 80,
+        position: {
+          latitude: 42.357986,
+          longitude: -71.054034,
+          z: 21
+        }
+      };
+
+      const objectSymbol = {
+        type: "point-3d", // autocasts as new PointSymbol3D()
+        symbolLayers: [
+          {
+            type: "icon", // autocasts as new ObjectSymbol3DLayer()
+            resource: {
+              href: "https://developers.arcgis.com/javascript/latest/sample-code/visualization-point-styles/live/Restaurant.png"
+            },
+            outline: {
+              color: "white",
+              size: 2
+            }
+          }
+        ]
+      };
+
+
+      const objectSymbolRenderer = {
+        type: "simple", // autocasts as new SimpleRenderer()
+        symbol: objectSymbol
+      };
+
+      const view = new SceneView({
+        container: "viewDiv",
+        map: map,
+        camera: initCamera
+      });
+
+      // Add the 3D buildings layer
+      var buildingsLayer = new IntegratedMeshLayer({
+        url: "https://tiles-eu1.arcgis.com/7cCya5lpv5CmFJHv/arcgis/rest/services/2023_02_08_Boston_final/SceneServer"
+      });
+
+      map.add(buildingsLayer);
+
+      // Add the Food Retailers Boston Neighborhoods feature layer
+      var foodRetailersLayer = new FeatureLayer({
+        url: "https://services.arcgis.com/kbDdtKcFi2adamXa/ArcGIS/rest/services/FoodRetailers_BostonNeighborhoods/FeatureServer/0",
+        outFields: ["*"],
+        renderer: objectSymbolRenderer,
+        popupTemplate: {
+            title: "{Name}", // Adjust the field name as needed
+            content: "Type: {Type}<br>Address: {Address}" // Adjust field names as needed
+          }
+      });
+
+      map.add(foodRetailersLayer);
+
+      // Create an info box
+      const infoBox = document.createElement("div");
+      infoBox.id = "infoBox";
+      document.body.appendChild(infoBox);
+
+      // Update the info box with lat, long, and z
+      function updateInfoBox() {
+        const camera = view.camera;
+        infoBox.innerHTML = `Lat: ${camera.position.latitude.toFixed(6)}<br>
+            Lon: ${camera.position.longitude.toFixed(6)}<br>
+            Heading: ${camera.heading.toFixed(6)}<br>
+            Tilt: ${camera.tilt.toFixed(6)}<br>
+            Elev: ${camera.position.z.toFixed(2)}m`;
+      }
+
+      // Watch for camera position changes
+      view.watch("camera", updateInfoBox);
+
+      // Initial update
+      updateInfoBox();
+    });
+  </script>
+</head>
+
+<body>
+  <div id="viewDiv"></div>
+</body>
+
+</html>

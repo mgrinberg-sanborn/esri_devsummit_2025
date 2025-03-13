@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no" />
+  <title>Terrain analysis with raster functions | Sample | ArcGIS Maps SDK for JavaScript 4.32</title>
+  <style>
+    html,
+    body {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+
+    #terrainAnalysisDiv {
+      background-color: var(--calcite-color-background);
+      padding: 10px;
+      overflow-y: auto;
+    }
+
+    #compassRoseDiv {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-evenly;
+    }
+
+    #compassRoseSvg {
+      width: 130px;
+    }
+
+    #compassRoseSvg text {
+      fill: var(--calcite-color-text-1);
+      font-size: 6px;
+    }
+
+    .roseDirection {
+      fill: none;
+      stroke: var(--calcite-color-border-input);
+      stroke-width: 1px;
+      pointer-events: all;
+      cursor: pointer;
+    }
+
+    .roseDirection.active {
+      fill: var(--calcite-color-brand);
+    }
+
+    #colorButton {
+      border: 1px solid var(--calcite-color-border-input);
+      width: 35px;
+      height: 25px;
+      background-color: rgb(0, 122, 194);
+      cursor: pointer;
+    }
+  </style>
+  <!-- Load Calcite components from CDN -->
+  <script type="module" src="https://js.arcgis.com/calcite-components/3.0.3/calcite.esm.js"></script>
+
+  <!-- Load the ArcGIS Maps SDK for JavaScript from CDN -->
+  <link rel="stylesheet" href="https://js.arcgis.com/4.32/esri/themes/dark/main.css" />
+  <script src="https://js.arcgis.com/4.32/"></script>
+
+  <!-- Load Map components from CDN-->
+  <script type="module"
+    src="https://js.arcgis.com/map-components/4.32/arcgis-map-components.esm.js"></script>
+</head>
+
+<body>
+  <arcgis-scene item-id="dac0b9b188e146baa504c9cfb6eb8d00">
+    <arcgis-zoom position="top-left"></arcgis-zoom>
+    <arcgis-navigation-toggle position="top-left"></arcgis-navigation-toggle>
+    <arcgis-compass position="top-left"></arcgis-compass>
+    <arcgis-expand position="top-left">
+      <arcgis-legend></arcgis-legend>
+    </arcgis-expand>
+    <arcgis-basemap-toggle position="bottom-left"></arcgis-basemap-toggle>
+    <arcgis-placement position="top-right">
+      <div id="terrainAnalysisDiv">
+        <calcite-segmented-control id="analysisModeSegmentedControl">
+          <calcite-segmented-control-item icon-start="surface" value="Custom"
+            checked>Custom</calcite-segmented-control-item>
+          <calcite-segmented-control-item icon-start="altitude" value="Elevation">Elevation</calcite-segmented-control-item>
+          <calcite-segmented-control-item icon-start="take-pedestrian-ramp"
+            value="Slope">Slope</calcite-segmented-control-item>
+        </calcite-segmented-control>
+        <br>
+        <calcite-label scale="s">
+          Transparency | %
+          <calcite-slider id="opacitySlider" value="20" label-handles max-label="100" min-label="0"
+            ticks="10"></calcite-slider>
+        </calcite-label>
+
+        <div id="customAnalysisDiv">
+          <calcite-label scale="s">
+            Elevation | m.a.s.l
+            <calcite-slider id="elevationSlider" min-value="2000" max-value="9000" min="-500" max="9000" ticks="500"
+              step="50" snap label-handles max-label="Max Elevation" min-label="Min Elevation"></calcite-slider>
+          </calcite-label>
+          <calcite-label scale="s">
+            Slope | °
+            <calcite-slider id="slopeSlider" min-value="10" max-value="90" min="0" max="90" ticks="5" step="1" snap
+              label-handles max-label="Max Slope" min-label="Min Slope"></calcite-slider>
+          </calcite-label>
+          <calcite-label scale="s">
+            Aspect
+            <div id="compassRoseDiv">
+              <svg id="compassRoseSvg" xmlns="http://www.w3.org/2000/svg" viewBox="-50 -50 100 100">
+                <!-- North -->
+                <polygon points="0,-40 5,-15 -5,-15" data-aspect="n" class="roseDirection" />
+                <text x="0" y="-45" text-anchor="middle">N</text>
+
+                <!-- North-East -->
+                <polygon points="22,-22 15,-5 5,-15" data-aspect="ne" class="roseDirection" />
+                <text x="30" y="-30" text-anchor="middle">NE</text>
+
+                <!-- East -->
+                <polygon points="40,0 15,5 15,-5" data-aspect="e" class="roseDirection" />
+                <text x="45" y="2" text-anchor="middle">E</text>
+
+                <!-- South-East -->
+                <polygon points="22,22 5,15 15,5" data-aspect="se" class="roseDirection active" />
+                <text x="30" y="30" text-anchor="middle">SE</text>
+
+                <!-- South -->
+                <polygon points="0,40 -5,15 5,15" data-aspect="s" class="roseDirection active" />
+                <text x="0" y="48" text-anchor="middle">S</text>
+
+                <!-- South-West -->
+                <polygon points="-22,22 -15,5 -5,15" data-aspect="sw" class="roseDirection active" />
+                <text x="-30" y="30" text-anchor="middle">SW</text>
+
+                <!-- West -->
+                <polygon points="-40,0 -15,-5 -15,5" data-aspect="w" class="roseDirection" />
+                <text x="-45" y="2" text-anchor="middle">W</text>
+
+                <!-- North-West -->
+                <polygon points="-22,-22 -5,-15 -15,-5" data-aspect="nw" class="roseDirection" />
+                <text x="-30" y="-30" text-anchor="middle">NW</text>
+              </svg>
+            </div>
+          </calcite-label>
+          <calcite-label scale="s">
+            Color
+            <calcite-popover reference-element="colorButton" closable>
+              <calcite-color-picker id="colorPicker" format="rgb" closable></calcite-color-picker>
+            </calcite-popover>
+            <button id="colorButton"></button>
+          </calcite-label>
+        </div>
+      </div>
+    </arcgis-placement>
+  </arcgis-scene>
+
+  <script>
+    require([
+      "esri/layers/support/RasterFunction",
+      "esri/layers/support/rasterFunctionUtils",
+      "esri/layers/ImageryTileLayer"
+    ], (
+      RasterFunction,
+      rasterFunctionUtils,
+      ImageryTileLayer
+    ) => {
+
+      const customAnalysisParams = {
+        elevation: { min: 2000, max: 9000 },
+        slope: { min: 10, max: 90 },
+        aspects: { N: false, NE: false, E: false, SE: true, S: true, SW: true, W: false, NW: false }
+      };
+
+      let activeAnalysisMode = "Custom"; // "Custom" | "Elevation" | "Slope"
+
+      /* ------------------------------ */
+      /* -- Slope - Raster Functions -- */
+
+      const slope = rasterFunctionUtils.slope({
+        slopeType: "degree",
+        zFactor: 1
+      });
+
+      // Remap slope values (degrees) to categorical ranges
+      const remapSlope = rasterFunctionUtils.remap({
+        rangeMaps: [
+          { range: [30, 35], output: 30 },
+          { range: [35, 40], output: 35 },
+          { range: [40, 45], output: 40 },
+          { range: [45, 90], output: 45 }
+        ],
+        outputPixelType: "u8",
+        raster: slope
+      });
+
+      // Map categorical ranges to RGB colors
+      const colorMapSlope = rasterFunctionUtils.colormap({
+        colormap: [
+          [30, 255, 255, 0],
+          [35, 255, 165, 0],
+          [40, 255, 0, 0],
+          [45, 128, 0, 128]
+        ],
+        raster: remapSlope
+      });
+
+      /* --------------------------------- */
+      /* -- Elevation - Raster Function -- */
+
+      const colorMapElevation = rasterFunctionUtils.colormap({
+        colorRampName: "elevation1"
+      });
+
+      /* -------------------------------------------- */
+      /* ---- Custom Analysis - Raster Functions ---- */
+
+      let customColor = [0, 122, 194]
+
+      function createCustomAnalysis(color = customColor) {
+
+        // Mask out elevation outside of parameter range
+        const elevationMask = rasterFunctionUtils.mask({
+          includedRanges: [[customAnalysisParams.elevation.min, customAnalysisParams.elevation.max]],
+          noDataValues: [[-9999]],
+          noDataInterpretation: "match-any"
+        });
+
+        // Compute slope on masked elevation
+        const slopeFunction = rasterFunctionUtils.slope({
+          slopeType: "degree",
+          zFactor: 1,
+          raster: elevationMask
+        });
+
+        // Mask out slopes outside of parameter range
+        const slopeMask = rasterFunctionUtils.mask({
+          includedRanges: [[customAnalysisParams.slope.min, customAnalysisParams.slope.max]],
+          noDataValues: [[-9999]],
+          noDataInterpretation: "match-any",
+          raster: slopeFunction
+        });
+
+        // Map included slopes >= 0 to 1
+        const greaterThanSlope0 = rasterFunctionUtils.greaterThanEqual({
+          raster: slopeMask,
+          raster2: 0
+        });
+
+        // Compute aspect on masked elevation
+        const aspectFunction = rasterFunctionUtils.aspect({
+          raster: elevationMask
+        });
+
+        // Map aspect as 1 (include) or 0 (exclude) according to parameters
+        const remapAspectFunction = rasterFunctionUtils.remap({
+          rangeMaps: [
+            { range: [-Infinity, 0], output: 1 }, // Include flats
+            { range: [360, Infinity], output: 1 }, // Include flats
+            { range: [337.5, 360], output: +customAnalysisParams.aspects.N },
+            { range: [0, 22.5], output: +customAnalysisParams.aspects.N },
+            { range: [22.5, 67.5], output: +customAnalysisParams.aspects.NE },
+            { range: [67.5, 112.5], output: +customAnalysisParams.aspects.E },
+            { range: [112.5, 157.5], output: +customAnalysisParams.aspects.SE },
+            { range: [157.5, 202.5], output: +customAnalysisParams.aspects.S },
+            { range: [202.5, 247.5], output: +customAnalysisParams.aspects.SW },
+            { range: [247.5, 292.5], output: +customAnalysisParams.aspects.W },
+            { range: [292.5, 337.5], output: +customAnalysisParams.aspects.NW }
+          ],
+          raster: aspectFunction
+        });
+
+        // Combine slope and aspect rasters
+        const combineAspectSlope = rasterFunctionUtils.booleanAnd({
+          raster: greaterThanSlope0,
+          raster2: remapAspectFunction
+        });
+
+        // Assign an RGB color to all raster cells with a value of 1
+        const colorMapFinal = rasterFunctionUtils.colormap({
+          colormap: [[1, ...color]],
+          raster: combineAspectSlope
+        });
+
+        return colorMapFinal;
+      }
+
+      /* ------------------ */
+      /* -- UI Functions -- */
+
+      const opacitySlider = document.getElementById("opacitySlider");
+      opacitySlider.addEventListener("calciteSliderInput", (event) => {
+        analysisLayer.opacity = 1 - event.target.value / 100;
+      });
+
+      const elevationSlider = document.getElementById("elevationSlider");
+      elevationSlider.addEventListener("calciteSliderChange", (event) => {
+        customAnalysisParams.elevation = {
+          min: event.target.minValue,
+          max: event.target.maxValue
+        };
+        analysisLayer.rasterFunction = createCustomAnalysis(customColor);
+      });
+
+      const slopeSlider = document.getElementById("slopeSlider");
+      slopeSlider.addEventListener("calciteSliderChange", (event) => {
+        customAnalysisParams.slope = { min: event.target.minValue, max: event.target.maxValue };
+        analysisLayer.rasterFunction = createCustomAnalysis(customColor);
+      });
+
+      const roseDirections = document.getElementsByClassName("roseDirection");
+      for (const roseDirection of roseDirections) {
+        roseDirection.addEventListener("click", () => {
+          const active = roseDirection.classList.toggle("active");
+          const aspect = roseDirection.getAttribute("data-aspect").toUpperCase();
+          customAnalysisParams.aspects[aspect] = active;
+          analysisLayer.rasterFunction = createCustomAnalysis(customColor);
+        });
+      }
+
+      const colorPicker = document.getElementById("colorPicker");
+      const colorButton = document.getElementById("colorButton");
+      colorPicker.addEventListener("calciteColorPickerChange", (event) => {
+        const color = event.target.value;
+        colorButton.style.backgroundColor = `rgb(${color.r}, ${color.g}, ${color.b})`;
+        customColor = [color.r, color.g, color.b]
+        analysisLayer.rasterFunction = createCustomAnalysis(customColor);
+      });
+
+      const customAnalysisDiv = document.getElementById("customAnalysisDiv");
+      const aspectCompass = document.getElementById("compassRoseSvg");
+      const analysisModeSegmentedControl = document.getElementById("analysisModeSegmentedControl");
+      const legendExpand = document.querySelector("arcgis-expand");
+      analysisModeSegmentedControl.addEventListener("calciteSegmentedControlChange", (event) => {
+        activeAnalysisMode = event.target.value;
+
+        if (activeAnalysisMode === "Custom") {
+          customAnalysisDiv.style.display = "block";
+          aspectCompass.style.display = "block";
+          legendExpand.collapse();
+        } else {
+          customAnalysisDiv.style.display = "none";
+          aspectCompass.style.display = "none";
+          legendExpand.expand();
+        }
+
+        // Reset renderer
+        analysisLayer.renderer = null;
+
+        switch (activeAnalysisMode) {
+          case "Slope":
+            analysisLayer.title = activeAnalysisMode + " | °";
+            analysisLayer.rasterFunction = colorMapSlope;
+            break;
+          case "Elevation":
+            analysisLayer.title = activeAnalysisMode + " | m.a.s.l";
+            analysisLayer.rasterFunction = colorMapElevation;
+            break;
+          case "Custom":
+          default:
+            analysisLayer.title = activeAnalysisMode + " Analysis";
+            analysisLayer.rasterFunction = createCustomAnalysis(customColor);
+            break;
+        }
+      });
+
+      // Setup layer with initial raster function
+      const analysisLayer = new ImageryTileLayer({
+        url: "https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer",
+        title: "Custom Analysis",
+        rasterFunction: createCustomAnalysis(customColor),
+        opacity: 0.8
+      });
+
+      // Access arcgis-basemap-toggle component
+      const arcgisBasemapToggle = document.querySelector("arcgis-basemap-toggle");
+      arcgisBasemapToggle.nextBasemap = "hybrid";
+
+      // Access arcgis-scene component
+      const arcgisScene = document.querySelector("arcgis-scene");
+      arcgisScene.addEventListener("arcgisViewReadyChange", () => {
+        arcgisScene.map.add(analysisLayer);
+      });
+    });
+
+  </script>
+</body>
+
+</html>
