@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>Custom Basemap | Sample | ArcGIS Maps SDK for JavaScript 4.32</title>
+  <title>3D Map of MBTA Train Stations</title>
 
   <style>
     html,
@@ -46,18 +46,11 @@
     ], (VectorTileLayer, Map, Basemap, BasemapToggle, SceneView, SceneLayer, IntegratedMeshLayer, FeatureLayer, PointSymbol3D) => {
 
       const map = new Map({
-        basemap: "satellite",
-        ground: "world-elevation"
+        basemap: 'satellite',
       });
 
       const initCamera = {
-        // heading: 341.78,
-        // tilt: 80,
-        // position: {
-        //   latitude: 42.357986,
-        //   longitude: -71.054034,
-        //   z: 21
-                heading: 305.418,
+        heading: 305.418,
         tilt: 71.4,
         position: {
           latitude: 42.347848,
@@ -67,24 +60,33 @@
       };
 
       const objectSymbol = {
-        type: "point-3d", // autocasts as new PointSymbol3D()
+        type: "point-3d",
         symbolLayers: [
           {
-            type: "icon", // autocasts as new ObjectSymbol3DLayer()
+            type: "icon",
             resource: {
-              href: "https://developers.arcgis.com/javascript/latest/sample-code/visualization-point-styles/live/Restaurant.png"
+              href: "https://upload.wikimedia.org/wikipedia/commons/6/64/MBTA.svg"
             },
             outline: {
               color: "white",
               size: 2
             }
           }
-        ]
+        ],
+        verticalOffset: {
+          screenLength: 100,
+          maxWorldLength: 200,
+          minWorldLength: 35
+        },
+        callout: {
+          type: "line",
+          size: 2,
+          color: 'white'
+        }
       };
 
-
       const objectSymbolRenderer = {
-        type: "simple", // autocasts as new SimpleRenderer()
+        type: "simple",
         symbol: objectSymbol
       };
 
@@ -94,32 +96,30 @@
         camera: initCamera
       });
 
-      // Add the 3D buildings layer
       var buildingsLayer = new IntegratedMeshLayer({
-        url: "https://tiles-eu1.arcgis.com/7cCya5lpv5CmFJHv/arcgis/rest/services/2023_02_08_Boston_final/SceneServer"
+        url: "https://tiles-eu1.arcgis.com/7cCya5lpv5CmFJHv/arcgis/rest/services/2023_02_08_Boston_final/SceneServer",
       });
 
       map.add(buildingsLayer);
 
-      // Add the Food Retailers Boston Neighborhoods feature layer
-      var foodRetailersLayer = new FeatureLayer({
-        url: "https://services.arcgis.com/kbDdtKcFi2adamXa/ArcGIS/rest/services/FoodRetailers_BostonNeighborhoods/FeatureServer/0",
+      var mbtaLayer = new FeatureLayer({
+        url: "https://arcgisserver.digital.mass.gov/arcgisserver/rest/services/AGOL/MBTA_Rapid_Transit/FeatureServer/1",
         outFields: ["*"],
         renderer: objectSymbolRenderer,
+        minScale: 0,  // Ensures the layer is always visible
+        maxScale: 0,
         popupTemplate: {
-            title: "{Name}", // Adjust the field name as needed
-            content: "Type: {Type}<br>Address: {Address}" // Adjust field names as needed
-          }
+            title: "{STATION}",
+            content: "{Line}"
+        }
       });
 
-      map.add(foodRetailersLayer);
+      map.add(mbtaLayer);
 
-      // Create an info box
       const infoBox = document.createElement("div");
       infoBox.id = "infoBox";
       document.body.appendChild(infoBox);
 
-      // Update the info box with lat, long, and z
       function updateInfoBox() {
         const camera = view.camera;
         infoBox.innerHTML = `Lat: ${camera.position.latitude.toFixed(6)}<br>
@@ -129,10 +129,7 @@
             Elev: ${camera.position.z.toFixed(2)}m`;
       }
 
-      // Watch for camera position changes
       view.watch("camera", updateInfoBox);
-
-      // Initial update
       updateInfoBox();
     });
   </script>
