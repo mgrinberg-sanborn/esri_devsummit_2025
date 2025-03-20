@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>Boring Map without Components</title>
+
+  <link href="https://js.arcgis.com/4.32/esri/themes/light/main.css" rel="stylesheet" />
+  <script src="https://js.arcgis.com/4.32/"></script>
+
+  <script>
+    require([
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/widgets/ElevationProfile",
+      "esri/identity/IdentityManager",
+      "esri/identity/OAuthInfo",
+      "esri/layers/FeatureLayer",
+      "esri/portal/Portal",
+    ], (Map, MapView, ElevationProfile, IdentityManager,OAuthInfo,FeatureLayer,Portal) => {
+
+      const map = new Map({
+        basemap: 'topo-vector',
+        ground: "world-elevation",
+      });
+
+
+      const view = new MapView({
+        container: "mapDiv",
+        map: map,
+        center: [-71, 42.335], // Longitude, Latitude for Boston
+        zoom: 10,
+      });
+
+      const elevationProfile = new ElevationProfile({
+        view: view,
+        container: "infoBox"
+      });
+
+      const streamsLayer = new FeatureLayer({
+        url: "https://portal.sanborn.com/arcserver/rest/services/Hosted/Blue_Hills_Deliverables___Zoning_Score_WFL1/FeatureServer/2"
+      });
+
+
+      // const appInfo = new OAuthInfo ({
+      //   appId: "29sacOduDiCgnSnh",
+      //   portalUrl: "https://portal.sanborn.com/arcportal",
+      //   popup: true
+      // });
+
+      // IdentityManager.registerOAuthInfos([appInfo]);
+
+      // function signIn() {
+      //     IdentityManager.getCredential(appInfo.portalUrl + "/sharing").then(() => {
+      //       handleSignedIn();
+      //     });
+      //   }
+
+      //   function handleSignedIn() {
+      //     const portal = new Portal();
+      //     portal.load().then(() => {
+      //       map.add(streamsLayer);
+            
+      //     });
+      //   }
+
+      //   document.getElementById("sign-in").addEventListener("click", signIn);
+
+    });
+
+    alert('Hello, no components!');
+  </script>
+</head>
+
+<body>
+  <div id="header"style="height:5vh; width: 100vw; display: flex; align-items: center">
+    <img src="logo.jpg"> <b>Non-Components Demo!</b>
+    <button id="sign-in" class="btn btn-primary">Sign In</button>
+  </div>
+  <div id="mapDiv" style="height:30vh; width: 100vw;"></div>
+  <div id="infoBox" style="height:20vh; width: 100vw;"></div>
+
+  </body>
+
+</html>
