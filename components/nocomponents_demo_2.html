@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+    <!-- Not using components, see... https://developers.arcgis.com/javascript/latest/references/ -->
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>Map without Components</title>
+
+  <!-- ESRI JS Core API & Styling -->
+  <link href="https://js.arcgis.com/4.32/esri/themes/light/main.css" rel="stylesheet" />
+  <script src="https://js.arcgis.com/4.32/"></script>
+
+  <!-- ESRI Components as ESM module, https://www.npmjs.com/package/@arcgis/map-components for NPM, 
+  https://developers.arcgis.com/javascript/latest/references/map-components/ for documentation -->
+
+  <script>
+    require([
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/widgets/ElevationProfile",
+    ], (Map, MapView, ElevationProfile) => {
+
+      const map = new Map({
+        basemap: 'topo-vector',
+        ground: "world-elevation",
+      });
+
+
+      const view = new MapView({
+        container: "mapDiv",
+        map: map,
+        center: [-71, 42.335], 
+        zoom: 10,
+      });
+
+      const elevationProfile = new ElevationProfile({
+        view: view,
+        container: "infoBox"
+      });
+
+    });
+  </script>
+</head>
+
+<body>
+  <div id="header"style="height:5vh; width: 100vw; display: flex; align-items: center">
+    <img src="logo.jpg"> <b>Non-Components Demo!</b>
+  </div>
+  <div id="mapDiv" style="height:30vh; width: 100vw;"></div>
+  <div id="infoBox" style="height:20vh; width: 100vw;"></div>
+
+  </body>
+
+</html>

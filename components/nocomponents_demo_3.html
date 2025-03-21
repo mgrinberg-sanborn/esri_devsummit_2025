@@ -1,13 +1,18 @@
 <!doctype html>
 <html lang="en">
+    <!-- Not using components, see... https://developers.arcgis.com/javascript/latest/references/ -->
 
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>Boring Map without Components</title>
+  <title>Map without Components</title>
 
+  <!-- ESRI JS Core API & Styling -->
   <link href="https://js.arcgis.com/4.32/esri/themes/light/main.css" rel="stylesheet" />
   <script src="https://js.arcgis.com/4.32/"></script>
+
+  <!-- ESRI Components as ESM module, https://www.npmjs.com/package/@arcgis/map-components for NPM, 
+  https://developers.arcgis.com/javascript/latest/references/map-components/ for documentation -->
 
   <script>
     require([
@@ -29,7 +34,7 @@
       const view = new MapView({
         container: "mapDiv",
         map: map,
-        center: [-71, 42.335], // Longitude, Latitude for Boston
+        center: [-71, 42.335], 
         zoom: 10,
       });
 
@@ -42,34 +47,36 @@
         url: "https://portal.sanborn.com/arcserver/rest/services/Hosted/Blue_Hills_Deliverables___Zoning_Score_WFL1/FeatureServer/2"
       });
 
+      // OAuthInfo for authentication
+      const appInfo = new OAuthInfo ({
+        appId: "29sacOduDiCgnSnh",
+        portalUrl: "https://portal.sanborn.com/arcportal",
+        popup: true
+      });
 
-      // const appInfo = new OAuthInfo ({
-      //   appId: "29sacOduDiCgnSnh",
-      //   portalUrl: "https://portal.sanborn.com/arcportal",
-      //   popup: true
-      // });
+      // Register OAuthInfo with the identity manager, this pulls in the app ID, portal url, and popup settings
+      IdentityManager.registerOAuthInfos([appInfo]);
 
-      // IdentityManager.registerOAuthInfos([appInfo]);
-
-      // function signIn() {
-      //     IdentityManager.getCredential(appInfo.portalUrl + "/sharing").then(() => {
-      //       handleSignedIn();
-      //     });
-      //   }
-
-      //   function handleSignedIn() {
-      //     const portal = new Portal();
-      //     portal.load().then(() => {
-      //       map.add(streamsLayer);
+      // Now, sign in...
+      function signIn() {
+          IdentityManager.getCredential(appInfo.portalUrl + "/sharing").then(() => {
+            handleSignedIn();
+          });
+        }
+        
+        // And load the streams layer
+        function handleSignedIn() {
+          const portal = new Portal();
+          portal.load().then(() => {
+            map.add(streamsLayer);
             
-      //     });
-      //   }
-
-      //   document.getElementById("sign-in").addEventListener("click", signIn);
+          });
+        }
+        
+        // Event listener for sign-in
+        document.getElementById("sign-in").addEventListener("click", signIn);
 
     });
-
-    alert('Hello, no components!');
   </script>
 </head>
 

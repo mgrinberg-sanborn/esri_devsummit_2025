@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+    <!-- Using components, see... https://developers.arcgis.com/javascript/latest/references/ -->
+<head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <title>ArcGIS Components Demo</title>
+    <!-- Calcite CSS -->
+    <script type="module" src="https://js.arcgis.com/calcite-components/3.0.3/calcite.esm.js"></script>
+    
+    <!-- ESRI JS Core API & Styling -->
+    <script src="https://js.arcgis.com/4.32/"></script>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.32/esri/themes/light/main.css" />
+
+
+    <!-- ESRI Components as ESM module, https://www.npmjs.com/package/@arcgis/map-components for NPM, 
+    https://developers.arcgis.com/javascript/latest/references/map-components/ for documentation -->
+    <script type="module" src="https://js.arcgis.com/map-components/4.32/arcgis-map-components.esm.js"></script>
+    <script>
+      require([
+        "esri/identity/IdentityManager",
+        "esri/identity/OAuthInfo",
+        "esri/layers/FeatureLayer",
+        "esri/portal/Portal",
+      ], (IdentityManager, OAuthInfo, FeatureLayer, Portal) => {
+    
+        // OAuthInfo for authentication
+        const appInfo = new OAuthInfo({
+            appId: "29sacOduDiCgnSnh",
+            portalUrl: "https://portal.sanborn.com/arcportal",
+            popup: true
+        });
+        
+        // Register OAuthInfo with the identity manager, this pulls in the app ID, portal url, and popup settings
+        IdentityManager.registerOAuthInfos([appInfo]);
+    
+        // Now, sign in...
+        function signIn() {
+            IdentityManager.getCredential(appInfo.portalUrl + "/sharing").then(() => {
+            handleSignedIn(); // After successful sign-in, handle further steps
+          });
+        }
+
+        //And load the streams layer
+        function handleSignedIn() {
+              const arcgisMap = document.querySelector("arcgis-map");
+              const streamsLayer = new FeatureLayer({
+                url: "https://portal.sanborn.com/arcserver/rest/services/Hosted/Blue_Hills_Deliverables___Zoning_Score_WFL1/FeatureServer/2"
+              });
+              arcgisMap.map.add(streamsLayer);
+        }
+    
+        // Event listener for sign-in
+        document.getElementById("sign-in").addEventListener("click", signIn);
+      });
+
+        //       const getToken = async () => {
+        //   const body = {
+        //     client_id,
+        //     client_secret,
+        //     grant_type: 'client_credentials',
+        //   };
+        //   const resp = await fetch('https://www.arcgis.com/sharing/rest/oauth2/token', {
+        //     method: 'post',
+        //     headers: {
+        //       'Content-Type': 'application/x-www-form-urlencoded',
+        //     },
+        //     body: new URLSearchParams(body),
+        //   });
+        //   if (resp.ok) {
+        //     const out = await resp.json();
+        //     return out.access_token;
+        //   }
+        //   const out = await resp.text();
+        //   throw new Error(out);
+        // };
+      
+    </script>
+  </head>
+<body>
+    <calcite-shell class="custom-theme">
+      <calcite-navigation slot="header">
+        <!-- https://www.figma.com/community/file/1360404524550439175 -->
+        <calcite-navigation-logo slot="logo" icon="globe" text="ArcGIS Components Demo" heading="Components Demo!"></calcite-navigation-logo>
+
+      </calcite-navigation>
+      <div class="content-container">
+        <div>        
+          <button id="sign-in" class="btn btn-primary">Sign In</button>
+        </div>
+          <calcite-panel id="map-container">
+            <arcgis-map id="map" basemap="topo-vector" zoom="10" center="-71, 42.335" ground="world-elevation">
+            </arcgis-map>
+          </calcite-panel>
+          <calcite-panel id="elevation-profile">
+            <arcgis-elevation-profile position="top-right" reference-element="map"></arcgis-elevation-profile>
+          </calcite-panel>
+          <calcite-panel id="streams-layer">
+            <arcgis-feature-table style="height: 30vh; width: 100vw;" reference-element="map" layer-url="https://portal.sanborn.com/arcserver/rest/services/Hosted/Blue_Hills_Deliverables___Zoning_Score_WFL1/FeatureServer/2"
+          ></arcgis-feature-table>          
+        </calcite-panel>
+      </div>
+    </calcite-shell>
+
+</body>
+</html>
