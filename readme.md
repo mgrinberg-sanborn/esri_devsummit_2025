@@ -1,5 +1,5 @@
 # Sessions attended:
-- ESRI RestJS Packages
+- ESRI RestJS Package
 - Location Platform Introduction
 - Object Detection & GeoAI
 - Geometry Operators

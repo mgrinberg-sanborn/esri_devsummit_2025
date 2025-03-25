@@ -43,6 +43,12 @@
 
         //And load the streams layer
         function handleSignedIn() {
+
+          // The map component will fire events so you can do things like...
+          // arcgisMap = document.querySelector("arcgis-map");
+          // mapElement.addEventListener("arcgisViewReadyChange", () => { 
+          //   
+
               const arcgisMap = document.querySelector("arcgis-map");
               const streamsLayer = new FeatureLayer({
                 url: "https://portal.sanborn.com/arcserver/rest/services/Hosted/Blue_Hills_Deliverables___Zoning_Score_WFL1/FeatureServer/2"
@@ -74,6 +80,8 @@
         //   const out = await resp.text();
         //   throw new Error(out);
         // };
+
+        // });
       
     </script>
   </head>
@@ -92,9 +100,9 @@
             <arcgis-map id="map" basemap="topo-vector" zoom="10" center="-71, 42.335" ground="world-elevation">
             </arcgis-map>
           </calcite-panel>
-          <calcite-panel id="elevation-profile">
+          <!-- <calcite-panel id="elevation-profile">
             <arcgis-elevation-profile position="top-right" reference-element="map"></arcgis-elevation-profile>
-          </calcite-panel>
+          </calcite-panel> -->
           <calcite-panel id="streams-layer">
             <arcgis-feature-table style="height: 30vh; width: 100vw;" reference-element="map" layer-url="https://portal.sanborn.com/arcserver/rest/services/Hosted/Blue_Hills_Deliverables___Zoning_Score_WFL1/FeatureServer/2"
           ></arcgis-feature-table>          
