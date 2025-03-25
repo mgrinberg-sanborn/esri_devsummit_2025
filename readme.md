@@ -1,4 +1,5 @@
-# Sessions attended:
+# Sessions attended
+
 - ESRI RestJS Package
 - Location Platform Introduction
 - Object Detection & GeoAI
@@ -17,7 +18,8 @@
 - Tabular Data Exploration in the Feature Table
 - Plenaries and Keynote
 
-# Interesting & Useful Github Repos:
+# Interesting & Useful Github Repos
+
 - <https://github.com/Esri/jsapi-resources> (Javascript API Resources)
 - <https://github.com/EsriDevEvents> (Dev Events Github)
 - <https://github.com/banuelosj/DevSummit-presentation> (web editing presentation)
@@ -27,5 +29,8 @@
 - <https://github.com/Esri/arcgis-rest-js> -- RestJS Package
 
 # Notes for Future Attendees
+
 - Dodgeball is great, you should do it. Be patient, aim for their top player.
-- Leave presentations
+- Leave presentations if they seem non-interesting/relevant, you can always jump to another one and many people do.
+- Check out ESRI Dev events in the day or two before the summit to confirm the presentations you want to go to (can look at repos and slides in there in many cases)
+- Try to go to non-recorded presentations, the recordings are very good.
