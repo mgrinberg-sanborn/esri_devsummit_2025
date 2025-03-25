@@ -18,7 +18,13 @@
 - Plenaries and Keynote
 
 # Interesting & Useful Github Repos:
-
+- <https://github.com/Esri/jsapi-resources> (Javascript API Resources)
+- <https://github.com/EsriDevEvents> (Dev Events Github)
+- <https://github.com/banuelosj/DevSummit-presentation> (web editing presentation)
+- <https://github.com/cyatteau/esridevtech25-speedgeeking-ai-gemini> -- Ask Google Gemini AI questions about maps and have it highlight them
+- <https://github.com/maxpatiiuk/esri-dev-summit-presentations/tree/main/2025/geo-io#readme> -- Agar.io on an ESRI map
+- <https://github.com/EsriDevEvents/dev-tech-summit-demo-templates> -- Calcite Templates, can remove things from this
+- <https://github.com/Esri/arcgis-rest-js> -- RestJS Package
 
 # Notes for Future Attendees
 - Dodgeball is great, you should do it. Be patient, aim for their top player.
