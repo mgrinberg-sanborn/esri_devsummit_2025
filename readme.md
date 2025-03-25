@@ -28,4 +28,4 @@
 
 # Notes for Future Attendees
 - Dodgeball is great, you should do it. Be patient, aim for their top player.
-- 
+- Leave presentations
