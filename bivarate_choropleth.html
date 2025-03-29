@@ -1,0 +1,154 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>Esri Developer Guide: Relationship</title>
+
+    <link rel="stylesheet" href="https://js.arcgis.com/4.32/esri/themes/light/main.css"/>
+    <script type="module" src="https://js.arcgis.com/calcite-components/3.0.3/calcite.esm.js"></script>
+    <script src="https://js.arcgis.com/4.32/"></script>
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+
+    <script>
+      require([
+        "esri/views/MapView",
+        "esri/WebMap",
+        "esri/layers/FeatureLayer",
+        "esri/widgets/Legend",
+        "esri/widgets/Expand",
+        "esri/smartMapping/renderers/relationship"
+      ], function (
+        MapView,
+        WebMap,
+        FeatureLayer,
+        Legend,
+        Expand,
+        relationshipRendererCreator
+      ) {
+        const layer = new FeatureLayer({
+          url: "https://services.arcgis.com/YKJ5JtnaPQ2jDbX8/ArcGIS/rest/services/Heat_Vulnerability/FeatureServer",
+          blendMode: "multiply",
+        });
+
+        const map = new WebMap({
+          layers: [ layer ]
+        });
+
+        const referenceScale = 9244650*2;
+
+        const view = new MapView({
+          container: "viewDiv",
+          map: map,
+          zoom: 7,
+            center: [ -72.577, 44.260 ],
+          // Set dock options on the view's popup
+          popup: {
+            dockEnabled: true,
+            dockOptions: {
+              breakpoint: false
+            }
+          },
+          constraints: {
+            snapToZoom:false
+          }
+        });
+
+        view.ui.add(new Expand({
+          content: new Legend({
+            view
+          }),
+          view
+        }), "top-right");
+
+        layer.when()
+          .then(createRelationshipRenderer)
+          .then(applyRenderer);
+
+          const [combobox] = document.getElementsByTagName('calcite-combobox');
+          combobox.addEventListener("calciteComboboxChange", () => {
+            if (combobox.selectedItems.length === 2) {
+              const datafield1 = combobox.selectedItems[0].value;
+              const datafield2 = combobox.selectedItems[1].value;
+              createRelationshipRenderer(datafield1, datafield2)
+                .then(applyRenderer);}
+        });     
+
+    function createRelationshipRenderer(datafield1, datafield2) {
+
+          const params = {
+            layer: layer,
+            view: view,
+            field1: {
+              field: datafield1,
+              label: datafield1
+            },
+            field2: {
+              field: datafield2,
+              label: datafield2
+            },
+            focus: null,
+            numClasses: 3,
+            outlineOptimizationEnabled: true
+          };
+
+          return relationshipRendererCreator.createRenderer(params);
+
+        }
+
+        function applyRenderer(response) {
+          const renderer = response.renderer;
+
+
+          renderer.uniqueValueInfos.forEach(function (info) {
+            switch (info.value) {
+              
+            }
+          });
+
+          layer.renderer = renderer;
+        }
+
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv" style="height:80vh; width: 100vw;"></div>
+    <div id="comboBox" style="height:20vh; width: 100vw;">
+      <calcite-combobox id="data-selector" placeholder="Select a field">
+          <calcite-combobox-item value="Pop0_5pct" heading="Population less than 5 years old"></calcite-combobox-item>
+          <calcite-combobox-item value="Pop65Plus" heading="Population 65 years old or older"></calcite-combobox-item>
+          <calcite-combobox-item value="Minority_p" heading="Minority population"></calcite-combobox-item>
+          <calcite-combobox-item value="Poverty_pc" heading="Population living below Federal Poverty Line"></calcite-combobox-item>
+          <calcite-combobox-item value="NoHS_pct" heading="Adult population with no high school diploma"></calcite-combobox-item>
+          <calcite-combobox-item value="Alone65_pc" heading="Adults 65 and older living alone"></calcite-combobox-item>
+          <calcite-combobox-item value="Insure_pct" heading="Adult population with no health insurance"></calcite-combobox-item>
+          <calcite-combobox-item value="Diabetes" heading="Adults with diabetes"></calcite-combobox-item>
+          <calcite-combobox-item value="Asthma" heading="Adults with asthma"></calcite-combobox-item>
+          <calcite-combobox-item value="Hypertensi" heading="Adults with hypertension"></calcite-combobox-item>
+          <calcite-combobox-item value="Obese_pct" heading="Adults who are obese"></calcite-combobox-item>
+          <calcite-combobox-item value="Fair_Poor" heading="Adults in fair or poor health"></calcite-combobox-item>
+          <calcite-combobox-item value="Mortality" heading="All-cause mortality, warm season deaths"></calcite-combobox-item>
+          <calcite-combobox-item value="HouseDenMi" heading="Housing units per square mile"></calcite-combobox-item>
+          <calcite-combobox-item value="Imperv_pct" heading="Land coverage with Impervious surface"></calcite-combobox-item>
+          <calcite-combobox-item value="Forest_Pct" heading="Land coverage by forest canopy"></calcite-combobox-item>
+          <calcite-combobox-item value="Days_gt87" heading="Average number of days per year 87 degrees or hotter"></calcite-combobox-item>
+          <calcite-combobox-item value="ED_Visits" heading="Heat-related emergency department visits"></calcite-combobox-item>
+      </calcite-combobox>
+  </div>
+  </body>
+</html>
