@@ -107,25 +107,21 @@
           .then(createRelationshipRenderer)
           .then(applyRenderer);
 
-          const [combobox] = document.getElementsByTagName('calcite-combobox');
-          combobox.addEventListener("calciteComboboxChange", () => {
-            if (combobox.selectedItems.length > 2) {
-              console.log(combobox.selectedItems[2], combobox.selectedItems);
-              const lastSelectedItem = combobox.selectedItems.pop();
+          const [dropdown] = document.getElementsByTagName('calcite-dropdown');
+          dropdown.addEventListener("calciteDropdownSelect", () => {
+            if (dropdown.selectedItems.length > 2) {
+              const lastSelectedItem = dropdown.selectedItems.pop();
               if (lastSelectedItem) {
-                const itemElement = combobox.querySelector(`calcite-combobox-item[value="${lastSelectedItem.value}"]`);
-                if (itemElement) {
-                  itemElement.selected = false;
-                }
+                lastSelectedItem.selected = false;
               }
               const alertBox = document.getElementById('selection-alert');
               if (alertBox) {
               alertBox.hidden = false;
               }
             }
-            if (combobox.selectedItems.length === 2) {
-              const datafield1 = combobox.selectedItems[0].value;
-              const datafield2 = combobox.selectedItems[1].value;
+            if (dropdown.selectedItems.length === 2) {
+              const datafield1 = dropdown.selectedItems[0].getAttribute('value');
+              const datafield2 = dropdown.selectedItems[1].getAttribute('value');
               createRelationshipRenderer(datafield1, datafield2)
                 .then(applyRenderer);}
         });     
@@ -177,27 +173,30 @@
       <div class="content-container">
           <calcite-panel id="viewDiv">
           </calcite-panel>
-          <calcite-panel id="comboBox">
-            <calcite-combobox id="data-selector" placeholder="Select two fields to begin mapping">
-              <calcite-combobox-item value="Pop0_5pct" heading="Population less than 5 years old"></calcite-combobox-item>
-              <calcite-combobox-item value="Pop65Plus" heading="Population 65 years old or older"></calcite-combobox-item>
-              <calcite-combobox-item value="Minority_p" heading="Minority population"></calcite-combobox-item>
-              <calcite-combobox-item value="Poverty_pc" heading="Population living below Federal Poverty Line"></calcite-combobox-item>
-              <calcite-combobox-item value="NoHS_pct" heading="Adult population with no high school diploma"></calcite-combobox-item>
-              <calcite-combobox-item value="Alone65_pc" heading="Adults 65 and older living alone"></calcite-combobox-item>
-              <calcite-combobox-item value="Insure_pct" heading="Adult population with no health insurance"></calcite-combobox-item>
-              <calcite-combobox-item value="Diabetes" heading="Adults with diabetes"></calcite-combobox-item>
-              <calcite-combobox-item value="Asthma" heading="Adults with asthma"></calcite-combobox-item>
-              <calcite-combobox-item value="Hypertensi" heading="Adults with hypertension"></calcite-combobox-item>
-              <calcite-combobox-item value="Obese_pct" heading="Adults who are obese"></calcite-combobox-item>
-              <calcite-combobox-item value="Fair_Poor" heading="Adults in fair or poor health"></calcite-combobox-item>
-              <calcite-combobox-item value="Mortality" heading="All-cause mortality, warm season deaths"></calcite-combobox-item>
-              <calcite-combobox-item value="HouseDenMi" heading="Housing units per square mile"></calcite-combobox-item>
-              <calcite-combobox-item value="Imperv_pct" heading="Land coverage with Impervious surface"></calcite-combobox-item>
-              <calcite-combobox-item value="Forest_Pct" heading="Land coverage by forest canopy"></calcite-combobox-item>
-              <calcite-combobox-item value="Days_gt87" heading="Average number of days per year 87 degrees or hotter"></calcite-combobox-item>
-              <calcite-combobox-item value="ED_Visits" heading="Heat-related emergency department visits"></calcite-combobox-item>
-          </calcite-combobox>        
+          <calcite-panel id="dropdown">
+            <calcite-dropdown id="data-selector" placeholder="Select two fields to begin mapping" close-on-select-disabled>
+              <calcite-button slot="trigger">Select two fields to begin mapping</calcite-button>
+              <calcite-dropdown-group group-title="Natural places" selection-mode="multiple" >
+                <calcite-dropdown-item value="Pop0_5pct">Population less than 5 years old</calcite-dropdown-item>
+                <calcite-dropdown-item value="Pop65Plus">Population 65 years old or older</calcite-dropdown-item>
+                <calcite-dropdown-item value="Minority_p">Minority population</calcite-dropdown-item>
+                <calcite-dropdown-item value="Poverty_pc">Population living below Federal Poverty Line</calcite-dropdown-item>
+                <calcite-dropdown-item value="NoHS_pct">Adult population with no high school diploma</calcite-dropdown-item>
+                <calcite-dropdown-item value="Alone65_pc">Adults 65 and older living alone</calcite-dropdown-item>
+                <calcite-dropdown-item value="Insure_pct">Adult population with no health insurance</calcite-dropdown-item>
+                <calcite-dropdown-item value="Diabetes">Adults with diabetes</calcite-dropdown-item>
+                <calcite-dropdown-item value="Asthma">Adults with asthma</calcite-dropdown-item>
+                <calcite-dropdown-item value="Hypertensi">Adults with hypertension</calcite-dropdown-item>
+                <calcite-dropdown-item value="Obese_pct">Adults who are obese</calcite-dropdown-item>
+                <calcite-dropdown-item value="Fair_Poor">Adults in fair or poor health</calcite-dropdown-item>
+                <calcite-dropdown-item value="Mortality">All-cause mortality, warm season deaths</calcite-dropdown-item>
+                <calcite-dropdown-item value="HouseDenMi">Housing units per square mile</calcite-dropdown-item>
+                <calcite-dropdown-item value="Imperv_pct">Land coverage with Impervious surface</calcite-dropdown-item>
+                <calcite-dropdown-item value="Forest_Pct">Land coverage by forest canopy</calcite-dropdown-item>
+                <calcite-dropdown-item value="Days_gt87">Average number of days per year 87 degrees or hotter</calcite-dropdown-item>
+                <calcite-dropdown-item value="ED_Visits">Heat-related emergency department visits</calcite-dropdown-item>
+              </calcite-dropdown-group>
+          </calcite-dropdown>        
         </calcite-panel>
         <calcite-alert id="selection-alert" kind="brand" label="Selection Alert" open auto-close icon="exclamation-mark-triangle" hidden>
           <div slot="title">Selection Limit Reached</div>
