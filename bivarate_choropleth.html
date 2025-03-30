@@ -47,6 +47,10 @@
         height: 100%;
         display: flex;
       }
+
+      calcite-alert {
+            --calcite-alert-background-color: #EDD317;
+        }
     </style>
 
     <script>
@@ -74,8 +78,6 @@
           basemap: 'topo-vector',
           layers: [ layer ]
         });
-
-        const referenceScale = 9244650*2;
 
         const view = new MapView({
           container: "viewDiv",
@@ -107,6 +109,20 @@
 
           const [combobox] = document.getElementsByTagName('calcite-combobox');
           combobox.addEventListener("calciteComboboxChange", () => {
+            if (combobox.selectedItems.length > 2) {
+              console.log(combobox.selectedItems[2], combobox.selectedItems);
+              const lastSelectedItem = combobox.selectedItems.pop();
+              if (lastSelectedItem) {
+                const itemElement = combobox.querySelector(`calcite-combobox-item[value="${lastSelectedItem.value}"]`);
+                if (itemElement) {
+                  itemElement.selected = false;
+                }
+              }
+              const alertBox = document.getElementById('selection-alert');
+              if (alertBox) {
+              alertBox.hidden = false;
+              }
+            }
             if (combobox.selectedItems.length === 2) {
               const datafield1 = combobox.selectedItems[0].value;
               const datafield2 = combobox.selectedItems[1].value;
@@ -183,6 +199,10 @@
               <calcite-combobox-item value="ED_Visits" heading="Heat-related emergency department visits"></calcite-combobox-item>
           </calcite-combobox>        
         </calcite-panel>
+        <calcite-alert id="selection-alert" kind="brand" label="Selection Alert" open auto-close icon="exclamation-mark-triangle" hidden>
+          <div slot="title">Selection Limit Reached</div>
+          <div slot="message">You can only select up to 2 fields.</div>
+        </calcite-alert>
       </div>
     </calcite-shell>
   </body>
