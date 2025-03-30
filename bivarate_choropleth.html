@@ -21,6 +21,32 @@
         height: 100%;
         width: 100%;
       }
+
+      html, body, #viewDiv, .content-container {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        --calcite-navigation-background-color: #003300;
+        --calcite-navigation-logo-heading-text-color: #ffffff;
+      }
+
+      calcite-shell {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+
+      .content-container {
+        flex-grow: 1;
+        display: flex;
+      }
+
+      calcite-panel {
+        flex-grow: 1;
+        height: 100%;
+        display: flex;
+      }
     </style>
 
     <script>
@@ -30,7 +56,7 @@
         "esri/layers/FeatureLayer",
         "esri/widgets/Legend",
         "esri/widgets/Expand",
-        "esri/smartMapping/renderers/relationship"
+        "esri/smartMapping/renderers/relationship",
       ], function (
         MapView,
         WebMap,
@@ -45,6 +71,7 @@
         });
 
         const map = new WebMap({
+          basemap: 'topo-vector',
           layers: [ layer ]
         });
 
@@ -125,30 +152,38 @@
       });
     </script>
   </head>
-
   <body>
-    <div id="viewDiv" style="height:80vh; width: 100vw;"></div>
-    <div id="comboBox" style="height:20vh; width: 100vw;">
-      <calcite-combobox id="data-selector" placeholder="Select a field">
-          <calcite-combobox-item value="Pop0_5pct" heading="Population less than 5 years old"></calcite-combobox-item>
-          <calcite-combobox-item value="Pop65Plus" heading="Population 65 years old or older"></calcite-combobox-item>
-          <calcite-combobox-item value="Minority_p" heading="Minority population"></calcite-combobox-item>
-          <calcite-combobox-item value="Poverty_pc" heading="Population living below Federal Poverty Line"></calcite-combobox-item>
-          <calcite-combobox-item value="NoHS_pct" heading="Adult population with no high school diploma"></calcite-combobox-item>
-          <calcite-combobox-item value="Alone65_pc" heading="Adults 65 and older living alone"></calcite-combobox-item>
-          <calcite-combobox-item value="Insure_pct" heading="Adult population with no health insurance"></calcite-combobox-item>
-          <calcite-combobox-item value="Diabetes" heading="Adults with diabetes"></calcite-combobox-item>
-          <calcite-combobox-item value="Asthma" heading="Adults with asthma"></calcite-combobox-item>
-          <calcite-combobox-item value="Hypertensi" heading="Adults with hypertension"></calcite-combobox-item>
-          <calcite-combobox-item value="Obese_pct" heading="Adults who are obese"></calcite-combobox-item>
-          <calcite-combobox-item value="Fair_Poor" heading="Adults in fair or poor health"></calcite-combobox-item>
-          <calcite-combobox-item value="Mortality" heading="All-cause mortality, warm season deaths"></calcite-combobox-item>
-          <calcite-combobox-item value="HouseDenMi" heading="Housing units per square mile"></calcite-combobox-item>
-          <calcite-combobox-item value="Imperv_pct" heading="Land coverage with Impervious surface"></calcite-combobox-item>
-          <calcite-combobox-item value="Forest_Pct" heading="Land coverage by forest canopy"></calcite-combobox-item>
-          <calcite-combobox-item value="Days_gt87" heading="Average number of days per year 87 degrees or hotter"></calcite-combobox-item>
-          <calcite-combobox-item value="ED_Visits" heading="Heat-related emergency department visits"></calcite-combobox-item>
-      </calcite-combobox>
-  </div>
+    <calcite-shell class="custom-theme">
+      <calcite-navigation slot="header">
+        <!-- https://www.figma.com/community/file/1360404524550439175 -->
+        <calcite-navigation-logo slot="logo" thumbnail="https://www.arcgis.com/sharing/rest/content/items/0ce1e35a117849fdb89822c80ebff64f/resources/MOM-Only-White-128x128-01.png?v=1743270303079" text="Vermont Environmental Justice Map POC" heading="Vermont EJ Map POC"></calcite-navigation-logo>
+      </calcite-navigation>
+      <div class="content-container">
+          <calcite-panel id="viewDiv">
+          </calcite-panel>
+          <calcite-panel id="comboBox">
+            <calcite-combobox id="data-selector" placeholder="Select two fields to begin mapping">
+              <calcite-combobox-item value="Pop0_5pct" heading="Population less than 5 years old"></calcite-combobox-item>
+              <calcite-combobox-item value="Pop65Plus" heading="Population 65 years old or older"></calcite-combobox-item>
+              <calcite-combobox-item value="Minority_p" heading="Minority population"></calcite-combobox-item>
+              <calcite-combobox-item value="Poverty_pc" heading="Population living below Federal Poverty Line"></calcite-combobox-item>
+              <calcite-combobox-item value="NoHS_pct" heading="Adult population with no high school diploma"></calcite-combobox-item>
+              <calcite-combobox-item value="Alone65_pc" heading="Adults 65 and older living alone"></calcite-combobox-item>
+              <calcite-combobox-item value="Insure_pct" heading="Adult population with no health insurance"></calcite-combobox-item>
+              <calcite-combobox-item value="Diabetes" heading="Adults with diabetes"></calcite-combobox-item>
+              <calcite-combobox-item value="Asthma" heading="Adults with asthma"></calcite-combobox-item>
+              <calcite-combobox-item value="Hypertensi" heading="Adults with hypertension"></calcite-combobox-item>
+              <calcite-combobox-item value="Obese_pct" heading="Adults who are obese"></calcite-combobox-item>
+              <calcite-combobox-item value="Fair_Poor" heading="Adults in fair or poor health"></calcite-combobox-item>
+              <calcite-combobox-item value="Mortality" heading="All-cause mortality, warm season deaths"></calcite-combobox-item>
+              <calcite-combobox-item value="HouseDenMi" heading="Housing units per square mile"></calcite-combobox-item>
+              <calcite-combobox-item value="Imperv_pct" heading="Land coverage with Impervious surface"></calcite-combobox-item>
+              <calcite-combobox-item value="Forest_Pct" heading="Land coverage by forest canopy"></calcite-combobox-item>
+              <calcite-combobox-item value="Days_gt87" heading="Average number of days per year 87 degrees or hotter"></calcite-combobox-item>
+              <calcite-combobox-item value="ED_Visits" heading="Heat-related emergency department visits"></calcite-combobox-item>
+          </calcite-combobox>        
+        </calcite-panel>
+      </div>
+    </calcite-shell>
   </body>
 </html>
