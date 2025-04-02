@@ -86,14 +86,21 @@
         "esri/widgets/Legend",
         "esri/widgets/Expand",
         "esri/smartMapping/renderers/relationship",
+        "esri/widgets/Home",
+        "esri/widgets/Locate",
+        "esri/Graphic"
       ], function (
         MapView,
         WebMap,
         FeatureLayer,
         Legend,
         Expand,
-        relationshipRendererCreator
+        relationshipRendererCreator,
+        Home,
+        Locate,
+        Graphic
       ) {
+        
         const layer = new FeatureLayer({
           url: "https://services.arcgis.com/YKJ5JtnaPQ2jDbX8/ArcGIS/rest/services/Heat_Vulnerability/FeatureServer",
           blendMode: "multiply",
@@ -132,7 +139,22 @@
           }
         });
 
+        let homeWidget = new Home({
+          view: view
+        });
 
+        // adds the home widget to the top left corner of the MapView
+        view.ui.add(homeWidget, "top-left");
+
+        let locateWidget = new Locate({
+          view: view,   // Attaches the Locate button to the view
+          graphic: new Graphic({
+            symbol: { type: "simple-marker" }  // overwrites the default symbol used for the
+            // graphic placed at the location of the user when found
+          })
+        });
+
+view.ui.add(locateWidget, "top-right");
 
         layer.when()
           .then(createRelationshipRenderer)
@@ -210,8 +232,12 @@
         }
 
       });
+      // TODO - Add in the vermont social vulnerability index as a different theme in addition to the heat index: https://geodata.vermont.gov/datasets/ahs-vt::vt-social-vulnerability-index-1/explore?location=43.854265%2C-72.451473%2C8.48&showTable=true
+      // TODO - Add in home button, search button.
+      // TODO - Ask David about qualitative data.
     </script>
   </head>
+  
   <body>
     <calcite-shell class="custom-theme">
       <calcite-navigation slot="header">
@@ -246,7 +272,6 @@
                 <calcite-dropdown-item value="ED_Visits">Heat-related emergency department visits</calcite-dropdown-item>
               </calcite-dropdown-group>
           </calcite-dropdown>
-          <calcite-label layout="inline">Waste Generators Layer<calcite-switch id="waste-generators"></calcite-switch>Off</calcite-label>    
         </calcite-panel>
         <calcite-alert id="selection-alert" kind="brand" label="Selection Alert" open auto-close icon="exclamation-mark-triangle" hidden>
           <div slot="title">Selection Limit Reached</div>
