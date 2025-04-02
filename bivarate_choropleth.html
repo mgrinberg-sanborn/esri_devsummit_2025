@@ -6,7 +6,7 @@
       name="viewport"
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
     />
-    <title>Esri Developer Guide: Relationship</title>
+    <title>Vermont EJ Map POC</title>
 
     <link rel="stylesheet" href="https://js.arcgis.com/4.32/esri/themes/light/main.css"/>
     <script type="module" src="https://js.arcgis.com/calcite-components/3.0.3/calcite.esm.js"></script>
@@ -14,38 +14,63 @@
 
     <style>
       html,
-      body,
-      #viewDiv {
+      body {
         padding: 0;
         margin: 0;
-        height: 100%;
-        width: 100%;
-      }
-
-      html, body, #viewDiv, .content-container {
-        padding: 0;
-        margin: 0;
-        height: 100%;
-        width: 100%;
         --calcite-navigation-background-color: #003300;
         --calcite-navigation-logo-heading-text-color: #ffffff;
       }
 
-      calcite-shell {
+      .content-container {
         display: flex;
-        flex-direction: column;
+        flex-wrap: wrap; /* Ensures proper wrapping on smaller screens */
         height: 100vh;
       }
 
-      .content-container {
-        flex-grow: 1;
+      #viewDiv {
+        flex: 1; /* Takes available space */
+        min-width: 300px; /* Ensures it doesn't shrink too much */
+        height: 100%;
+      }
+
+      #map-options {
+        flex: 1; /* Takes available space */
+        min-width: 300px; /* Prevents it from collapsing too much */
+        height: 100%;
+        padding: 1em;
+        overflow: auto;
+      }
+
+      /* Make dropdown and button fit properly */
+      #data-selector {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+      }
+
+      calcite-button,
+      calcite-dropdown {
+        width: 100%;
+      }
+
+      /* Adjust for small screens */
+      @media (max-width: 768px) {
+        .content-container {
+          flex-direction: column; /* Stack elements vertically */
+        }
+
+        #viewDiv, #map-options {
+          width: 100%; /* Full width on mobile */
+          height: auto;
+        }
+      }
+
+      .esri-legend__layer {
         display: flex;
       }
 
-      calcite-panel {
-        flex-grow: 1;
-        height: 100%;
-        display: flex;
+      calcite-input {
+        width: 100%;
       }
 
       calcite-alert {
@@ -72,11 +97,22 @@
         const layer = new FeatureLayer({
           url: "https://services.arcgis.com/YKJ5JtnaPQ2jDbX8/ArcGIS/rest/services/Heat_Vulnerability/FeatureServer",
           blendMode: "multiply",
+          outFields: ["*"],
+          popupTemplate: {
+            outFields: ["*"],
+            title: "{TOWNNAME}",
+            content: function (feature) {
+              const attributes = feature.graphic.attributes;
+              return Object.keys(attributes)
+                .map(key => `<b>${key}:</b> ${attributes[key]}`)
+                .join("<br>");
+            }
+          }
         });
 
         const map = new WebMap({
-          basemap: 'topo-vector',
-          layers: [ layer ]
+          basemap: 'osm',
+          layers: [ layer ],
         });
 
         const view = new MapView({
@@ -96,12 +132,7 @@
           }
         });
 
-        view.ui.add(new Expand({
-          content: new Legend({
-            view
-          }),
-          view
-        }), "top-right");
+
 
         layer.when()
           .then(createRelationshipRenderer)
@@ -125,6 +156,15 @@
               createRelationshipRenderer(datafield1, datafield2)
                 .then(applyRenderer);}
         });     
+
+        const [switchElement] = document.getElementsByTagName('calcite-switch');
+        switchElement.addEventListener("calciteSwitchChange", () => {
+          if (switchElement.switched) {
+            console.log('Mark');
+          } else {
+            view.map.ground = null;
+          }
+        });
 
     function createRelationshipRenderer(datafield1, datafield2) {
 
@@ -150,11 +190,19 @@
 
         function applyRenderer(response) {
           const renderer = response.renderer;
+          const featureinfo = document.getElementById('feature-info');
+          featureinfo.innerHTML = '';
+          let legend;  
+          legend = new Legend({
+            view: view, 
+            container: featureinfo,
+            layerInfos: [{ layer, title: "Key Indicators" }]
+            });
 
 
           renderer.uniqueValueInfos.forEach(function (info) {
             switch (info.value) {
-              
+              // Could use this to variably style the grid.
             }
           });
 
@@ -173,10 +221,11 @@
       <div class="content-container">
           <calcite-panel id="viewDiv">
           </calcite-panel>
-          <calcite-panel id="dropdown">
-            <calcite-dropdown id="data-selector" placeholder="Select two fields to begin mapping" close-on-select-disabled>
-              <calcite-button slot="trigger">Select two fields to begin mapping</calcite-button>
-              <calcite-dropdown-group group-title="Natural places" selection-mode="multiple" >
+          <calcite-panel id="map-options" heading="Map Options">
+            <div id="feature-info"></div>
+            <calcite-dropdown id="data-selector" placeholder="Select two indicators to compare" close-on-select-disabled>
+              <calcite-input slot="trigger" placeholder="Select two indicators to compare" read-only></calcite-input>
+              <calcite-dropdown-group group-title="Key Indicators" selection-mode="multiple" >
                 <calcite-dropdown-item value="Pop0_5pct">Population less than 5 years old</calcite-dropdown-item>
                 <calcite-dropdown-item value="Pop65Plus">Population 65 years old or older</calcite-dropdown-item>
                 <calcite-dropdown-item value="Minority_p">Minority population</calcite-dropdown-item>
@@ -196,7 +245,8 @@
                 <calcite-dropdown-item value="Days_gt87">Average number of days per year 87 degrees or hotter</calcite-dropdown-item>
                 <calcite-dropdown-item value="ED_Visits">Heat-related emergency department visits</calcite-dropdown-item>
               </calcite-dropdown-group>
-          </calcite-dropdown>        
+          </calcite-dropdown>
+          <calcite-label layout="inline">Waste Generators Layer<calcite-switch id="waste-generators"></calcite-switch>Off</calcite-label>    
         </calcite-panel>
         <calcite-alert id="selection-alert" kind="brand" label="Selection Alert" open auto-close icon="exclamation-mark-triangle" hidden>
           <div slot="title">Selection Limit Reached</div>
