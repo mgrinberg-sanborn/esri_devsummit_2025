@@ -48,6 +48,11 @@
         width: 100%;
       }
 
+      #search {
+        margin-bottom: 10px;
+        width: 100%;
+      }
+
       calcite-button,
       calcite-dropdown {
         width: 100%;
@@ -88,7 +93,8 @@
         "esri/smartMapping/renderers/relationship",
         "esri/widgets/Home",
         "esri/widgets/Locate",
-        "esri/Graphic"
+        "esri/Graphic",
+        "esri/widgets/Search",
       ], function (
         MapView,
         WebMap,
@@ -98,7 +104,8 @@
         relationshipRendererCreator,
         Home,
         Locate,
-        Graphic
+        Graphic,
+        Search
       ) {
         
         const layer = new FeatureLayer({
@@ -154,7 +161,13 @@
           })
         });
 
-view.ui.add(locateWidget, "top-right");
+        view.ui.add(locateWidget, "top-right");
+        const search = document.getElementById('search');
+        const searchWidget = new Search({
+          view: view,
+          container: search,
+        });
+       
 
         layer.when()
           .then(createRelationshipRenderer)
@@ -233,7 +246,6 @@ view.ui.add(locateWidget, "top-right");
 
       });
       // TODO - Add in the vermont social vulnerability index as a different theme in addition to the heat index: https://geodata.vermont.gov/datasets/ahs-vt::vt-social-vulnerability-index-1/explore?location=43.854265%2C-72.451473%2C8.48&showTable=true
-      // TODO - Add in home button, search button.
       // TODO - Ask David about qualitative data.
     </script>
   </head>
@@ -248,6 +260,7 @@ view.ui.add(locateWidget, "top-right");
           <calcite-panel id="viewDiv">
           </calcite-panel>
           <calcite-panel id="map-options" heading="Map Options">
+            <div id="search"></div>
             <div id="feature-info"></div>
             <calcite-dropdown id="data-selector" placeholder="Select two indicators to compare" close-on-select-disabled>
               <calcite-input slot="trigger" placeholder="Select two indicators to compare" read-only></calcite-input>
