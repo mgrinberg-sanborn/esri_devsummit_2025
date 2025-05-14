@@ -4,18 +4,34 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>3D Map of MBTA Train Stations</title>
+  <title>3D Map of MBTA Train Stations with FeatureTable</title>
 
   <style>
     html,
-    body,
-    #viewDiv {
+    body {
       padding: 0;
       margin: 0;
       height: 100%;
       width: 100%;
     }
-
+  
+    #app {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+  
+    #viewDiv {
+      height: 65%;
+      width: 100%;
+    }
+  
+    #tableDiv {
+      height: 35%;
+      width: 100%;
+      overflow: auto;
+    }
+  
     #infoBox {
       position: absolute;
       bottom: 10px;
@@ -26,6 +42,7 @@
       font-family: Arial, sans-serif;
       border-radius: 5px;
       box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+      z-index: 10;
     }
   </style>
 
@@ -42,37 +59,37 @@
       "esri/layers/SceneLayer",
       "esri/layers/IntegratedMeshLayer",
       "esri/layers/FeatureLayer",
-      "esri/symbols/PointSymbol3D"
-    ], (VectorTileLayer, Map, Basemap, BasemapToggle, SceneView, SceneLayer, IntegratedMeshLayer, FeatureLayer, PointSymbol3D) => {
+      "esri/symbols/PointSymbol3D",
+      "esri/widgets/FeatureTable"
+    ], (VectorTileLayer, Map, Basemap, BasemapToggle, SceneView, SceneLayer, IntegratedMeshLayer, FeatureLayer, PointSymbol3D, FeatureTable) => {
 
       const map = new Map({
         basemap: 'satellite',
       });
 
-      const initCamera = {
-        heading: 305.418,
-        tilt: 71.4,
-        position: {
-          latitude: 42.347848,
-          longitude: -71.036370,
-          z: 665
+      const view = new SceneView({
+        container: "viewDiv",
+        map: map,
+        camera: {
+          heading: 305.418,
+          tilt: 71.4,
+          position: {
+            latitude: 42.347848,
+            longitude: -71.036370,
+            z: 665
+          }
         }
-      };
+      });
 
       const objectSymbol = {
         type: "point-3d",
-        symbolLayers: [
-          {
-            type: "icon",
-            resource: {
-              href: "https://upload.wikimedia.org/wikipedia/commons/6/64/MBTA.svg"
-            },
-            outline: {
-              color: "white",
-              size: 2
-            }
-          }
-        ],
+        symbolLayers: [{
+          type: "icon",
+          resource: {
+            href: "https://upload.wikimedia.org/wikipedia/commons/6/64/MBTA.svg"
+          },
+          outline: { color: "white", size: 2 }
+        }],
         verticalOffset: {
           screenLength: 100,
           maxWorldLength: 200,
@@ -85,111 +102,118 @@
         }
       };
 
-      const objectSymbolRenderer = {
-        type: "simple",
-        symbol: objectSymbol
-      };
-
-      const view = new SceneView({
-        container: "viewDiv",
-        map: map,
-        camera: initCamera
+      const mbtaLayer = new FeatureLayer({
+        url: "https://arcgisserver.digital.mass.gov/arcgisserver/rest/services/AGOL/MBTA_Rapid_Transit/FeatureServer/1",
+        outFields: ["*"],
+        renderer: { type: "simple", symbol: objectSymbol },
+        minScale: 0,
+        maxScale: 0,
+        popupTemplate: {
+          title: "{STATION}",
+          content: "{Line}"
+        }
       });
 
-      var buildingsLayer = new IntegratedMeshLayer({
-        url: "https://tiles-eu1.arcgis.com/7cCya5lpv5CmFJHv/arcgis/rest/services/2023_02_08_Boston_final/SceneServer",
+      const roadsLayer = new FeatureLayer({
+        url: "https://services1.arcgis.com/hGdibHYSPO59RG1h/arcgis/rest/services/MassDOTRoads_gdb/FeatureServer/0",
+        outFields: ["*"],
+        title: "MassDOT Roads",
+        elevationInfo: { mode: "on-the-ground" },
+        renderer: {
+          type: "simple",
+          symbol: {
+            type: "simple-line",
+            color: [255, 255, 0, 0.8],
+            width: "2px"
+          }
+        },
+        popupTemplate: {
+          title: "{STREETNAME}",
+          content: `Road Type: {CLASS} <br>Right of Way Width: {ROW_WIDTH} ft<br>
+                    Surface Type: {SURFACE_TP}<br>Number of Lanes: {NUM_LANES}<br>
+                    Speed Limit: {SPEED_LIM} mph`
+        }
+      });
+
+      const parcelsLayer = new FeatureLayer({
+        url: "https://services1.arcgis.com/hGdibHYSPO59RG1h/arcgis/rest/services/L3_TAXPAR_POLY_ASSESS_gdb/FeatureServer/0",
+        outFields: ["*"],
+        title: "Property Parcels",
+        elevationInfo: { mode: "on-the-ground" },
+        renderer: {
+          type: "simple",
+          symbol: {
+            type: "simple-fill",
+            color: [0, 255, 255, 0.2],
+            outline: {
+              color: [0, 255, 255, 0.8],
+              width: 1
+            }
+          }
+        },
+        popupTemplate: {
+          title: "Parcel ID: {PID}",
+          content: `Owner: {OWNER1}<br>
+                    Address: {SITE_ADDR}<br>
+                    Land Use: {USE_CODE}<br>
+                    Total Value: $ {TOTAL_VAL}`
+        }
+      });
+
+      map.addMany([mbtaLayer, roadsLayer, parcelsLayer]);
+
+      const buildingsLayer = new IntegratedMeshLayer({
+        url: "https://tiles-eu1.arcgis.com/7cCya5lpv5CmFJHv/arcgis/rest/services/2023_02_08_Boston_final/SceneServer"
       });
 
       map.add(buildingsLayer);
 
-      var mbtaLayer = new FeatureLayer({
-        url: "https://arcgisserver.digital.mass.gov/arcgisserver/rest/services/AGOL/MBTA_Rapid_Transit/FeatureServer/1",
-        outFields: ["*"],
-        renderer: objectSymbolRenderer,
-        minScale: 0,  // Ensures the layer is always visible
-        maxScale: 0,
-        popupTemplate: {
-            title: "{STATION}",
-            content: "{Line}"
+      // Feature Table setup
+      const featureTable = new FeatureTable({
+        view: view,
+        layer: parcelsLayer,
+        container: document.getElementById("tableDiv"),
+        visibleElements: {
+          menu: true,
+          selectionColumn: true,
+          columnMenus: true
+        },
+        tableTemplate: {
+          columnTemplates: [
+            { fieldName: "PID" },
+            { fieldName: "OWNER1" },
+            { fieldName: "SITE_ADDR" },
+            { fieldName: "USE_CODE" },
+            { fieldName: "TOTAL_VAL" }
+          ]
         }
       });
 
-      var roadsLayer = new FeatureLayer({
-      url: "https://services1.arcgis.com/hGdibHYSPO59RG1h/arcgis/rest/services/MassDOTRoads_gdb/FeatureServer/0",
-      outFields: ["*"],
-      title: "MassDOT Roads",
-      elevationInfo: {
-        mode: "on-the-ground"
-      },
-      renderer: {
-        type: "simple",
-        symbol: {
-          type: "simple-line",
-          color: [255, 255, 0, 0.8], // yellow roads
-          width: "2px"
-        }
-      },
-      popupTemplate: {
-        title: "{STREETNAME}", // or any other available field
-        content: "Road Type: {CLASS} <br>Right of Way Width: {ROW_WIDTH} ft<br>Surface Type: {SURFACE_TP}<br> Number of Lanes: {NUM_LANES}<br> Speed Limit: {SPEED_LIM} mph", 
-      }
-    });
+      // // Info Box
+      // const infoBox = document.createElement("div");
+      // infoBox.id = "infoBox";
+      // document.body.appendChild(infoBox);
 
-    var parcelsLayer = new FeatureLayer({
-  url: "https://services1.arcgis.com/hGdibHYSPO59RG1h/arcgis/rest/services/L3_TAXPAR_POLY_ASSESS_gdb/FeatureServer/0",
-  outFields: ["*"],
-  title: "Property Parcels",
-  elevationInfo: {
-    mode: "on-the-ground"
-  },
-  renderer: {
-    type: "simple",
-    symbol: {
-      type: "simple-fill",
-      color: [0, 255, 255, 0.2],
-      outline: {
-        color: [0, 255, 255, 0.8],
-        width: 1
-      }
-    }
-  },
-  popupTemplate: {
-    title: "Parcel ID: {PID}",
-    content: `Owner: {OWNER1}<br>
-              Address: {SITE_ADDR}<br>
-              Land Use: {USE_CODE}<br>
-              Total Value: ${'{TOTAL_VAL}'}`
-  }
-});
+      // function updateInfoBox() {
+      //   const camera = view.camera;
+      //   infoBox.innerHTML = `Lat: ${camera.position.latitude.toFixed(6)}<br>
+      //                        Lon: ${camera.position.longitude.toFixed(6)}<br>
+      //                        Heading: ${camera.heading.toFixed(2)}<br>
+      //                        Tilt: ${camera.tilt.toFixed(2)}<br>
+      //                        Elev: ${camera.position.z.toFixed(2)}m`;
+      // }
 
-map.add(parcelsLayer);
-
-    map.add(roadsLayer);
-
-
-      map.add(mbtaLayer);
-
-      const infoBox = document.createElement("div");
-      infoBox.id = "infoBox";
-      document.body.appendChild(infoBox);
-
-      function updateInfoBox() {
-        const camera = view.camera;
-        infoBox.innerHTML = `Lat: ${camera.position.latitude.toFixed(6)}<br>
-            Lon: ${camera.position.longitude.toFixed(6)}<br>
-            Heading: ${camera.heading.toFixed(6)}<br>
-            Tilt: ${camera.tilt.toFixed(6)}<br>
-            Elev: ${camera.position.z.toFixed(2)}m`;
-      }
-
-      view.watch("camera", updateInfoBox);
-      updateInfoBox();
+      // view.watch("camera", updateInfoBox);
+      // updateInfoBox();
     });
   </script>
 </head>
 
 <body>
-  <div id="viewDiv"></div>
+  <div id="app">
+    <div id="viewDiv"></div>
+    <div id="tableDiv"></div>
+  </div>
 </body>
 
 </html>
