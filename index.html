@@ -114,6 +114,59 @@
         }
       });
 
+      var roadsLayer = new FeatureLayer({
+      url: "https://services1.arcgis.com/hGdibHYSPO59RG1h/arcgis/rest/services/MassDOTRoads_gdb/FeatureServer/0",
+      outFields: ["*"],
+      title: "MassDOT Roads",
+      elevationInfo: {
+        mode: "on-the-ground"
+      },
+      renderer: {
+        type: "simple",
+        symbol: {
+          type: "simple-line",
+          color: [255, 255, 0, 0.8], // yellow roads
+          width: "2px"
+        }
+      },
+      popupTemplate: {
+        title: "{STREETNAME}", // or any other available field
+        content: "Road Type: {CLASS} <br>Right of Way Width: {ROW_WIDTH} ft<br>Surface Type: {SURFACE_TP}<br> Number of Lanes: {NUM_LANES}<br> Speed Limit: {SPEED_LIM} mph", 
+      }
+    });
+
+    var parcelsLayer = new FeatureLayer({
+  url: "https://services1.arcgis.com/hGdibHYSPO59RG1h/arcgis/rest/services/L3_TAXPAR_POLY_ASSESS_gdb/FeatureServer/0",
+  outFields: ["*"],
+  title: "Property Parcels",
+  elevationInfo: {
+    mode: "on-the-ground"
+  },
+  renderer: {
+    type: "simple",
+    symbol: {
+      type: "simple-fill",
+      color: [0, 255, 255, 0.2],
+      outline: {
+        color: [0, 255, 255, 0.8],
+        width: 1
+      }
+    }
+  },
+  popupTemplate: {
+    title: "Parcel ID: {PID}",
+    content: `Owner: {OWNER1}<br>
+              Address: {SITE_ADDR}<br>
+              Land Use: {USE_CODE}<br>
+              Total Value: ${'{TOTAL_VAL}'}`
+  }
+});
+
+map.add(parcelsLayer);
+
+    map.add(roadsLayer);
+
+
       map.add(mbtaLayer);
 
       const infoBox = document.createElement("div");

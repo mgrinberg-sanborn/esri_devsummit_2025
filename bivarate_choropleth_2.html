@@ -6,7 +6,7 @@
       name="viewport"
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
     />
-    <title>Vermont Environmental Justice Mapping Tool Prototype</title>
+    <title>Vermont EJ Map POC</title>
 
     <link rel="stylesheet" href="https://js.arcgis.com/4.32/esri/themes/light/main.css"/>
     <script type="module" src="https://js.arcgis.com/calcite-components/3.0.3/calcite.esm.js"></script>
@@ -111,12 +111,12 @@
       ) {
         
         const layer = new FeatureLayer({
-          url: "https://services.arcgis.com/YKJ5JtnaPQ2jDbX8/ArcGIS/rest/services/Heat_Vulnerability/FeatureServer",
+          url: "https://services.arcgis.com/YKJ5JtnaPQ2jDbX8/ArcGIS/rest/services/SVI_IndexMeasures_ACS2015_5Yr/FeatureServer",
           blendMode: "multiply",
           outFields: ["*"],
           popupTemplate: {
             outFields: ["*"],
-            title: "{TOWNNAME}",
+            title: "{NAMELSAD10}",
             content: function (feature) {
               const attributes = feature.graphic.attributes;
               return Object.keys(attributes)
@@ -253,13 +253,13 @@
   <body>
     <calcite-shell class="custom-theme">
       <calcite-navigation slot="header">
-
+        <!-- https://www.figma.com/community/file/1360404524550439175 -->
         <calcite-navigation-logo slot="logo" thumbnail="https://www.arcgis.com/sharing/rest/content/items/0ce1e35a117849fdb89822c80ebff64f/resources/MOM-Only-White-128x128-01.png?v=1743270303079" text="Vermont Environmental Justice Mapping Tool Prototype" heading="Vermont Environmental Justice Mapping Tool Prototype"></calcite-navigation-logo>
         <calcite-menu slot="content-end">
-            <calcite-menu-item text="Social Vulnerability Index Theme" icon-start="group" text-enabled href="bivarate_choropleth_2.html"></calcite-menu-item>
-            <calcite-menu-item active text="Heat Vulnerability Index Theme" icon-start="beacon" href="bivarate_choropleth.html" text-enabled></calcite-menu-item>
-          </calcite-menu>
-      </calcite-navigation>
+          <calcite-menu-item active text="Social Vulnerability Index Theme" icon-start="group" text-enabled href="bivarate_choropleth_2.html"></calcite-menu-item>
+          <calcite-menu-item  text="Heat Vulnerability Index Theme" icon-start="beacon" href="bivarate_choropleth.html" text-enabled></calcite-menu-item>
+      </calcite-menu>
+    </calcite-navigation>
       <div class="content-container">
           <calcite-panel id="viewDiv">
           </calcite-panel>
@@ -269,24 +269,27 @@
             <calcite-dropdown id="data-selector" placeholder="Select two indicators to compare" close-on-select-disabled>
               <calcite-input slot="trigger" placeholder="Select two indicators to compare" read-only></calcite-input>
               <calcite-dropdown-group group-title="Key Indicators" selection-mode="multiple" >
-                <calcite-dropdown-item value="Pop0_5pct">Population less than 5 years old</calcite-dropdown-item>
-                <calcite-dropdown-item value="Pop65Plus">Population 65 years old or older</calcite-dropdown-item>
-                <calcite-dropdown-item value="Minority_p">Minority population</calcite-dropdown-item>
-                <calcite-dropdown-item value="Poverty_pc">Population living below Federal Poverty Line</calcite-dropdown-item>
-                <calcite-dropdown-item value="NoHS_pct">Adult population with no high school diploma</calcite-dropdown-item>
-                <calcite-dropdown-item value="Alone65_pc">Adults 65 and older living alone</calcite-dropdown-item>
-                <calcite-dropdown-item value="Insure_pct">Adult population with no health insurance</calcite-dropdown-item>
-                <calcite-dropdown-item value="Diabetes">Adults with diabetes</calcite-dropdown-item>
-                <calcite-dropdown-item value="Asthma">Adults with asthma</calcite-dropdown-item>
-                <calcite-dropdown-item value="Hypertensi">Adults with hypertension</calcite-dropdown-item>
-                <calcite-dropdown-item value="Obese_pct">Adults who are obese</calcite-dropdown-item>
-                <calcite-dropdown-item value="Fair_Poor">Adults in fair or poor health</calcite-dropdown-item>
-                <calcite-dropdown-item value="Mortality">All-cause mortality, warm season deaths</calcite-dropdown-item>
-                <calcite-dropdown-item value="HouseDenMi">Housing units per square mile</calcite-dropdown-item>
-                <calcite-dropdown-item value="Imperv_pct">Land coverage with Impervious surface</calcite-dropdown-item>
-                <calcite-dropdown-item value="Forest_Pct">Land coverage by forest canopy</calcite-dropdown-item>
-                <calcite-dropdown-item value="Days_gt87">Average number of days per year 87 degrees or hotter</calcite-dropdown-item>
-                <calcite-dropdown-item value="ED_Visits">Heat-related emergency department visits</calcite-dropdown-item>
+                <calcite-dropdown-item value="POP_DENSITY">Population Density</calcite-dropdown-item>
+                <calcite-dropdown-item value="POP_18_24_PCT">Percentage College Age 18-24</calcite-dropdown-item>
+                <calcite-dropdown-item value="POVERTY_PCT">Percentage Living in Poverty</calcite-dropdown-item>
+                <calcite-dropdown-item value="UNEMPLOYED_PCT">Percentage Unemployed</calcite-dropdown-item>
+                <calcite-dropdown-item value="INCOME_PER_CAP">Income per capita</calcite-dropdown-item>
+                <calcite-dropdown-item value="EDU_NO_HS_DIP_PCT">Percentage No High School Diploma</calcite-dropdown-item>
+                <calcite-dropdown-item value="NO_INSURANCE_PCT">Percentage No Insurance</calcite-dropdown-item>
+                <calcite-dropdown-item value="POP_0_17_PCT">Percentage Children 0-17</calcite-dropdown-item>
+                <calcite-dropdown-item value="POP_65PLUS_PCT">Percentage Elderly Age 65+</calcite-dropdown-item>
+                <calcite-dropdown-item value="DISABLED_PCT">Percentage Disabled</calcite-dropdown-item>
+                <calcite-dropdown-item value="SINGLE_PARENT_PCT">Percentage Single Parents</calcite-dropdown-item>
+                <calcite-dropdown-item value="MINORITY_PCT">Percentage Minority</calcite-dropdown-item>
+                <calcite-dropdown-item value="POOR_ENGLISH_PCT">Percentage Limited English</calcite-dropdown-item>
+                <calcite-dropdown-item value="H_UNITS_10PLUS_PCT">% HU in Large Apt. Buildings</calcite-dropdown-item>
+                <calcite-dropdown-item value="MOBILE_HOME_PCT">Percentage Mobile Homes</calcite-dropdown-item>
+                <calcite-dropdown-item value="CROWDING_PCT">Percentage Crowding</calcite-dropdown-item>
+                <calcite-dropdown-item value="NO_CAR_PCT">Percentage No Car Available</calcite-dropdown-item>
+                <calcite-dropdown-item value="GROUP_QTR_PCT">Percentage Group Quarters</calcite-dropdown-item>
+                <calcite-dropdown-item value="SOC_Flags">Socioeconomic Flags</calcite-dropdown-item>
+                <calcite-dropdown-item value="DEM_Flags">Demographic Flags</calcite-dropdown-item>
+                <calcite-dropdown-item value="H_T_Flags">Housing/Transportation Flags</calcite-dropdown-item>
               </calcite-dropdown-group>
           </calcite-dropdown>
         </calcite-panel>
