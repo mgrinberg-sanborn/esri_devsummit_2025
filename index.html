@@ -140,7 +140,10 @@
         url: "https://services1.arcgis.com/hGdibHYSPO59RG1h/arcgis/rest/services/L3_TAXPAR_POLY_ASSESS_gdb/FeatureServer/0",
         outFields: ["*"],
         title: "Property Parcels",
-        elevationInfo: { mode: "absolute-height" },
+        elevationInfo: { 
+          mode: "absolute-height", 
+          offset: 10 
+        },
         renderer: {
           type: "simple",
           symbol: {
