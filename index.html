@@ -64,7 +64,8 @@
     ], (VectorTileLayer, Map, Basemap, BasemapToggle, SceneView, SceneLayer, IntegratedMeshLayer, FeatureLayer, PointSymbol3D, FeatureTable) => {
 
       const map = new Map({
-        basemap: 'satellite',
+        basemap: "dark-gray-vector",
+        ground: "world-elevation",
       });
 
       const view = new SceneView({
@@ -139,7 +140,7 @@
         url: "https://services1.arcgis.com/hGdibHYSPO59RG1h/arcgis/rest/services/L3_TAXPAR_POLY_ASSESS_gdb/FeatureServer/0",
         outFields: ["*"],
         title: "Property Parcels",
-        elevationInfo: { mode: "on-the-ground" },
+        elevationInfo: { mode: "absolute-height" },
         renderer: {
           type: "simple",
           symbol: {
